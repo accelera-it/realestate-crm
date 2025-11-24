@@ -78,16 +78,16 @@ const connectDB = async (DATABASE_URL, DATABASE) => {
         await createNewModule({ body: { moduleName: 'Properties', fields: propertiesFields, headings: [], isDefault: true } }, mockRes);
 
         // Create default role
-        // await createNewRole({ body: defaultRole }, mockRes);
+        await createNewRole({ body: defaultRole }, mockRes);
 
         /*  */
-        await initializedSchemas();
+        // await initializedSchemas();
 
         let adminExisting = await User.find({ role: 'superAdmin' });
         if (adminExisting.length <= 0) {
             const phoneNumber = 7874263694
-            const firstName = 'Prolink'
-            const lastName = 'Infotech'
+            const firstName = 'System'
+            const lastName = 'Admin'
             const username = 'admin@gmail.com'
             const password = 'admin123'
             // Hash the password
@@ -103,6 +103,29 @@ const connectDB = async (DATABASE_URL, DATABASE) => {
         } else if (adminExisting[0].username !== "admin@gmail.com") {
             await User.findByIdAndUpdate(adminExisting[0]._id, { username: 'admin@gmail.com' });
             console.log("Admin Update successfully..");
+        }
+
+
+        let userExisting = await User.find({ role: 'user' });
+        if (userExisting.length <= 0) {
+            const phoneNumber = 7874263694
+            const firstName = 'Elyor'
+            const lastName = 'Latipov'
+            const username = 'user@gmail.com'
+            const password = 'user123'
+            // Hash the password
+            const hashedPassword = await bcrypt.hash(password, 10);
+            // Create a new user
+            const user = new User({ _id: new mongoose.Types.ObjectId('64d33173fd7ff3fa0924a108'), username, password: hashedPassword, firstName, lastName, phoneNumber, role: 'user' });
+            // Save the user to the database
+            await user.save();
+            console.log("User created successfully..");
+        } else if (userExisting[0].deleted === true) {
+            await User.findByIdAndUpdate(userExisting[0]._id, { deleted: false });
+            console.log("User Update successfully..");
+        } else if (userExisting[0].username !== "user@gmail.com") {
+            await User.findByIdAndUpdate(userExisting[0]._id, { username: 'user@gmail.com' });
+            console.log("User Update successfully..");
         }
 
         console.log("Database Connected Successfully..");
